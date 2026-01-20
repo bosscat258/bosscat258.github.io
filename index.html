@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>地理词汇随身学 - 第一单元(1-10)</title>
+    <style>
+        :root { --primary: #4a90e2; --bg: #f4f7f9; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); font-family: sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        #app-wrapper { width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; background: white; position: relative; }
+        #search-container { padding: 10px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; flex-shrink: 0; }
+        #search-input { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        #search-results { position: absolute; top: 55px; left: 10px; right: 10px; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto; display: none; z-index: 101; }
+        .res-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; cursor: pointer; }
+        #scrollable-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        #image-area { position: relative; width: 100%; aspect-ratio: 4/3; background: #e0e0e0 no-repeat center/cover; flex-shrink: 0; }
+        .word-tag { position: absolute; background: rgba(255,255,255,0); border: 0px solid var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0); white-space: nowrap; transition: 0.2s; }
+        .word-tag.active { /*background: var(--primary); */ color: #4a90e2; scale: 1; z-index: 0; }
+        #main-content { padding: 15px; flex-shrink: 0; }
+        #s-en { font-size: 1rem; color: #333; margin-bottom: 5px; text-align: center; font-weight: bold; cursor: pointer; color: var(--primary); line-height: 1.4; }
+        #s-zh { font-size: 0.85rem; color: #999; text-align: center; margin-bottom: 15px; }
+        #detail-card { background: #f0f7ff; border-radius: 12px; padding: 15px; border: 1px solid #d0e3f7; min-height: 160px; }
+        .d-word { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .d-ipa { font-size: 1rem; color: #666; margin-left: 10px; font-family: Arial, sans-serif; }
+        .d-meaning { font-size: 1.1rem; margin: 8px 0; color: #444; }
+        .d-ex-box { font-size: 0.9rem; color: #555; line-height: 1.5; background: white; padding: 10px; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 10px; }
+        .d-note { font-size: 0.85rem; color: #e67e22; background: #fff5eb; padding: 8px; border-radius: 6px; border: 1px dashed #ffcc99; }
+        .bottom-nav { padding: 15px 20px; background: #fff; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .nav-btn { padding: 10px 25px; background: var(--primary); color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .nav-btn:disabled { background: #e2e8f0; color: #a0aec0; }
+        #start-overlay { position: fixed; inset: 0; background: #2c3e50; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper">
+    <div id="start-overlay">
+        <h1 style="margin-bottom: 10px;">🌍 第一单元：生物与耕种</h1>
+        <p style="margin-bottom: 25px; opacity: 0.8;">Section 1 - 10 | 完全体内容已就绪</p>
+        <button class="nav-btn" style="padding:15px 40px; font-size: 1.1rem;" onclick="start()">开始学习</button>
+    </div>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="搜索单词、含义或记忆点..." oninput="handleSearch()">
+        <div id="search-results"></div>
+    </div>
+
+    <div id="scrollable-body">
+        <div id="image-area"></div>
+        <div id="main-content">
+            <div id="s-en" onclick="speak(this.innerText)"></div>
+            <div id="s-zh"></div>
+            <div id="detail-card">
+                <div id="d-init" style="text-align:center; color:#999; padding-top:40px;">点击上方单词开启深度解析</div>
+                <div id="d-box" style="display:none;">
+                    <div><span class="d-word" id="dw"></span><span class="d-ipa" id="ipa"></span></div>
+                    <div class="d-meaning" id="dm"></div>
+                    <div class="d-ex-box" id="dex"></div>
+                    <div id="dn-box" class="d-note"></div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <button class="nav-btn" id="pBtn" onclick="move(-1)">上页</button>
+            <span id="page-num" style="font-weight:bold; color:#a0aec0;">1 / 10</span>
+            <button class="nav-btn" id="nBtn" onclick="move(1)">下页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let audio = null;
+    let current = 0;
+
+    const dataset = [
+       {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrSyj.jpg",
+            en: "In the sealed lab, plants use photosynthesis to absorb carbon dioxide and then respire.",
+            zh: "在密封的实验室里，植物利用光合作用吸收二氧化碳，然后进行呼吸。",
+         words: [
+                 { t: "photosynthesis", p: "/ˌfəʊtəʊˈsɪnθəsɪs/", m: "n. 光合作用", ex: "Sunlight is essential for photosynthesis. (阳光对光合作用至关重要。)", note: "", x: "29.7%", y: "42.6%" },
+                { t: "respire", p: "/rɪˈspaɪə(r)/", m: "v. 呼吸", ex: "The organism began to respire faster. (该生物体开始加快呼吸。)", note: "respiration n.呼吸；respiratory adj.呼吸的", x: "21.2%", y: "67.5%" },
+                 { t: "dioxide", p: "/daɪˈɒksaɪd/", m: "n. 二氧化物", ex: "Is it a jar of pure carbon dioxide? (这是一罐纯净的二氧化碳吗？)", note: "carbon dioxide 二氧化碳", x: "78%", y: "41.3%" }
+            
+            ]
+        },       
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrNXd.jpg",
+            en: "The hill is covered in thick vegetation consisting of various perennial herbs.",
+            zh: "山上覆盖着茂密的植被，由各种多年生草本植物组成。",
+            words: [
+                { t: "vegetation", p: "/ˌvedʒəˈteɪʃn/", m: "n. 植被", ex: "Desert vegetation is often sparse. (沙漠植被通常很稀疏。)", note: "vegetable n.蔬菜；vegetarian n.素食者", x: "41%", y: "17.1%" },
+                { t: "herb", p: "/hɜːb/", m: "n. 草本植物", ex: "This small herb has a strong scent. (这种小草本植物有很浓的香味。)", note: "herbal adj. 药草的；herbivore n. 食草动物；carnivore n. 食肉动物", x: "42.1%", y: "51.1%" },
+                { t: "perennial", p: "/pəˈreniəl/", m: "adj. 多年生的", ex: "These are perennial flowers that bloom every year. (这些是每年都会开花的多年生花卉。)", note: "", x: "88.3%", y: "42.8%" }
+            ]
+        },
+        {
+           img: "https://s41.ax1x.com/2026/01/18/pZyr5NV.jpg",
+            en: "The botany department studies how an eco-friendly ecosystem maintains its ecology.",
+            zh: "植物学系研究环保的生态系统如何维持其生态平衡。",
+            words: [
+                { t: "botany", p: "/ˈbɒtəni/", m: "n. 植物学", ex: "He decided to major in botany. (他决定主修植物学。)", note: "botanical adj. 植物的；botanist n. 植物学家", x: "35.9%", y: "58%" },
+                { t: "ecology", p: "/iˈkɒlədʒi/", m: "n. 生态学", ex: "The oil spill damaged the island's ecology. (漏油事故破坏了岛上的生态。)", note: "ecological adj. 生态的；ecologist n. 生态学家", x: "33.4%", y: "39.7%" },
+                { t: "ecosystem", p: "/ˈiːkəʊsɪstəm/", m: "n. 生态系统", ex: "The pond is a self-contained ecosystem. (这个池塘是一个自给自足的生态系统。)", note: "", x: "76.3%", y: "93.5%" }
+               
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrf7q.jpg",
+            en: "In the horticulture lab, every living organism is studied through genetics.",
+            zh: "在园艺实验室内，每一个生物体都通过遗传学进行研究。",
+            words: [
+                { t: "horticulture", p: "/ˈhɔːtɪkʌltʃə(r)/", m: "n. 园艺学", ex: "She is an expert in tropical horticulture. (她是热带园艺学专家。)", note: "", x: "18.3%", y: "69%" },
+                { t: "organism", p: "/ˈɔːɡənɪzəm/", m: "n. 有机体", ex: "A virus is a simple organism. (病毒是一种简单的生物体。)", note: "", x: "73.7%", y: "91%" },
+                { t: "genetics", p: "/dʒəˈnetɪks/", m: "n. 遗传学", ex: "Genetics plays a role in how we age. (遗传学在我们衰老的过程中起着作用。)", note: "", x: "83.9%", y: "10.4%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrWBn.jpg",
+            en: "To classify species, scientists study variation, mutation, and hybridisation for diversity.",
+            zh: "为了对物种进行分类，科学家研究变异、突变和杂交以了解多样性。",
+            words: [
+                { t: "mutation", p: "/mjuːˈteɪʃn/", m: "n. 突变", ex: "A genetic mutation caused the change. (基因突变引起了这种变化。)", note: "", x: "79.6%", y: "38%" },
+                { t: "variation", p: "/ˌveəriˈeɪʃn/", m: "n. 变异", ex: "There is a wide variation in size. (尺寸上存在很大差异。)", note: "", x: "40.4%", y: "11%" },
+                { t: "diversity", p: "/daɪˈvɜːsəti/", m: "n. 多样性", ex: "The city is known for its cultural diversity. (这座城市以文化多样性闻名。)", note: "", x: "63.8%", y: "71%" },
+                { t: "hybridisation", p: "/ˌhaɪbrɪdaɪˈzeɪʃn/", m: "n. 杂交", ex: "Hybridisation can produce stronger plants. (杂交可以产生更强壮的植物。)", note: "", x: "15.5%", y: "92%" },
+                { t: "classify", p: "/ˈklæsɪfaɪ/", m: "v. 分类", ex: "How do we classify these rocks? (我们如何对这些岩石进行分类？)", note: "", x: "60.1%", y: "53%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrRns.jpg",
+            en: "When the population fluctuates, species must reproduce and evolve to survive.",
+            zh: "当种群数量波动时，物种必须繁殖并进化以生存。",
+            words: [
+                { t: "reproduce", p: "/ˌriːprəˈdjuːs/", m: "v. 繁殖", ex: "Bacteria reproduce very quickly. (细菌繁殖非常快。)", note: "", x: "73.8%", y: "19.5%" },
+                { t: "evolve", p: "/iˈvɒlv/", m: "v. 进化", ex: "Humans evolved from earlier primates. (人类是从早期的灵长类动物进化而来的。)", note: "", x: "54.1%", y: "70%" },
+                { t: "fluctuate", p: "/ˈflʌktʃueɪt/", m: "v. 波动", ex: "Prices fluctuate according to demand. (价格随需求而波动。)", note: "", x: "35.4%", y: "27%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyr4A0.jpg",
+            en: "Farmers reclaim the land to cultivate crops and sow seeds for the harvest.",
+            zh: "农民开垦土地以耕种庄稼，为收获播下种子。",
+            words: [
+                { t: "reclaim", p: "/rɪˈkleɪm/", m: "v. 开垦", ex: "They plan to reclaim the wasteland. (他们计划开垦这片荒地。)", note: "",  x:"10%", y:"73.4%" },
+                { t: "cultivate", p: "/ˈkʌltɪveɪt/", m: "v. 耕作", ex: "The land is too rocky to cultivate. (这片土地岩石太多，无法耕种。)", note: "",x:"26%", y:"83.4%" },
+                { t: "sow", p: "/səʊ/", m: "v. 播种", ex: "Sow the seeds in late spring. (在暮春时节播种。)", note: "", x:"72.3%", y:"13.5%" },
+                { t: "harvest", p: "/ˈhɑːvɪst/", m: "v. 收获", ex: "The grain is ready for harvest. (谷物已经可以收割了。)", note: "", x:"90%", y:"15.8%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/18/pZyrIhT.jpg",
+            en: "Stack the bundles of flowers and put a bunch in a vase near the heap of stones.",
+            zh: "把成捆的花堆好，在石堆旁的瓶子里插上一束。",
+            words: [
+                { t: "stack", p: "/stæk/", m: "v. 堆放 n. 一堆", ex: "Stack the chairs in the corner. (把椅子叠放在角落里。)", note: "", x: "84.3%", y: "33.2%" },
+                { t: "heap", p: "/hiːp/", m: "n. (凌乱的)一堆", ex: "A heap of clothes lay on the floor. (地板上堆着一堆衣服。)", note: "", x: "10%", y: "56.3%" },
+                { t: "bundle", p: "/ˈbʌndl/", m: "n. 捆/束", ex: "A bundle of firewood. (一捆木柴。)", note: "", x: "89.3%", y: "92.6%" },
+                { t: "bunch", p: "/bʌntʃ/", m: "n. (串/簇)一束", ex: "A bunch of grapes. (一串葡萄。)", note: "", x: "54.7%", y: "10%" },
+                { t: "vase", p: "/vɑːz/", m: "n. 花瓶", ex: "She put the roses in a glass vase. (她把玫瑰插进玻璃花瓶里。)", note: "", x: "13%", y: "42.5%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZyob0f.jpg",
+            en: "In the shade, mould and fungus grow away from direct sunlight.",
+            zh: "在阴凉处，霉菌和真菌在远离阳光直射的地方生长。",
+            words: [
+{ t: "sunlight", p: "/ˈsʌnlaɪt/", m: "n. 阳光", ex: "The room was flooded with sunlight. (房间里充满了阳光。)", note: "", x: "79%", y: "31.8%" },
+{ t: "short-day", p: "/ʃɔːt-deɪ/", m: "adj. 短日照的", ex: "Chrysanthemums are short-day plants. (菊花是短日照植物。)", note: "", x: "63.4%", y: "9.3%" },
+{ t: "shade-tolerant", p: "/ʃeɪd-ˈtɒlərənt/", m: "adj. 耐阴的", ex: "Many ferns are shade-tolerant. (许多蕨类植物都是耐阴的。)", note: "", x: "35.6%", y: "18%" },
+{ t: "fungus", p: "/ˈfʌŋɡəs/", m: "n. 真菌", ex: "The fungus grows on damp wood. (这种真菌生长在潮湿的木头上。)", note: "", x: "57.7%", y: "87.3%" },
+{ t: "mould", p: "/məʊld/", m: "n. 霉菌", ex: "There's mould on the bread. (面包发霉了。)", note: "", x: "10.2%", y: "90%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6P2Yd.jpg",
+            en: "On arable plots, we rear hens, pick mint, pluck a stray feather, and yield tiny joys.",
+            zh: "在农田里，我们养鸡、采摘薄荷、拔掉一根杂毛，收获着小小的快乐。",
+            words: [
+{ t: "pluck", p: "/plʌk/", m: "v. 采摘", ex: "She plucked a flower from the garden. (她从花园里摘了一朵花。)", note: "", x:"40.5%", y:"45.9%" },
+{ t: "pick", p: "/pɪk/", m: "v. 挑选/采摘", ex: "Pick the ripest fruit first. (先采摘最成熟的水果。)", note: "",x:"92.7%", y:"68.4%"},
+{ t: "yield", p: "/jiːld/", m: "n. 产量 v. 产出", ex: "This year's wheat yield is record-breaking. (今年小麦产量创纪录。)", note: "", x:"51.6%", y:"92%" },
+{ t: "rear", p: "/rɪə(r)/", m: "v. 饲养/抚养", ex: "He rears sheep on his farm. (他在农场养羊。)", note: "",x:"27.3%", y:"43.6%" },
+{ t: "arable", p: "/ˈærəbl/", m: "adj. 可耕作的", ex: "Arable land is becoming scarce. (可耕地正变得稀缺。)", note: "",x:"21.5%", y:"9.2%"},
+            ]
+        },
+ {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6PgFH.jpg",
+            en: " Spade digs, rake sweeps, plough rolls.",
+            zh: "铲子挖掘，耙子清扫，犁子翻耕。",
+            words: [
+{ t: "plough", p: "/plaʊ/", m: "v./n. 耕/犁", ex: "Horses were once used to plough fields. (马曾经被用来耕田。)", note: "", x:"14%", y:"89.3%" },
+{ t: "spade", p: "/speɪd/", m: "n. 铲子", ex: "He used a spade to dig a hole. (他用铁锹挖了一个洞。)", note: "", x:"35%", y:"25.5%" },
+{ t: "rake", p: "/reɪk/", m: "n. 耙子", ex: "Rake the leaves into a pile. (把落叶耙成一堆。)", note: "",x:"72.4%", y:"20.9%"}
+            ]
+        },  
+
+//*******************************************************************
+{
+            img: "https://s41.ax1x.com/2026/01/19/pZ6CAUJ.jpg",
+            en: "The wind carries pollen to the seed, helping it germinate and burgeon into a new bud.",
+            zh: "风将花粉带到种子处，帮助它发芽并抽芽长成一个新的花蕾。",
+            words: [
+{ t: "pollen", p: "/ˈpɒlən/", m: "n. 花粉", ex: "Bees are covered in yellow pollen. (蜜蜂全身沾满了黄色的花粉。)", note: "[记] pollinate v. 授粉；pollination n. 授粉作用", x: "40.6%", y: "13.8%" },
+{ t: "germinate", p: "/ˈdʒɜːmɪneɪt/", m: "v. 发芽", ex: "The seeds will germinate in a few days. (这些种子几天后就会发芽。)", note: "[记] germ n. 胚芽；细菌", x: "40.3%", y: "90.8%" },
+{ t: "seed", p: "/siːd/", m: "n. 种子", ex: "Plant the seed in fertile soil. (将种子种在肥沃的土壤里。)", note: "[搭] seed seedling 幼苗", x: "52.9%", y: "58.4%" },
+{ t: "burgeon", p: "/ˈbɜːdʒən/", m: "v. 抽芽/迅速发展", ex: "The burgeoning market offers many opportunities. (迅速发展的市场提供了很多机会。)", note: "[记] 联想：bud(芽) + geon -> 快速长出新芽", x: "81%", y: "79%"},
+{ t: "bud", p: "/bʌd/", m: "n. 花蕾/芽", ex: "The rose is still in bud. (玫瑰还在含苞待放。)", note: "[搭] in bud 正在发芽；nip in the bud 扼杀在萌芽状态", x: "90%", y: "8%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6Cc2q.jpg",
+            en: "When flowers bloom, their aromatic scent is even stronger than the fruit blossom.",
+            zh: "当鲜花盛开时，它们芬芳的气味甚至比果树的花还要浓郁。",
+            words: [
+{ t: "flower", p: "/ˈflaʊə(r)/", m: "n. 花", ex: "She picked a fresh flower. (她摘了一朵鲜花。)", note: "[记] flowery adj. 多花的；华丽的", x:"13.8%", y:"84.4%" },
+{ t: "blossom", p: "/ˈblɒsəm/", m: "n. 花(尤指果树)", ex: "The apple trees are covered in white blossom. (苹果树上开满了白花。)", note: "[搭] cherry blossom 樱花", x:"85.4%", y:"49.6%" },
+{ t: "bloom", p: "/bluːm/", m: "v./n. 开花/全盛期", ex: "The garden is in full bloom. (花园里鲜花盛开。)", note: "[搭] in bloom 开花中", x:"85%", y:"82%" },
+{ t: "scent", p: "/sent/", m: "n. 气味/香味", ex: "The sweet scent of orange trees. (橙子树清甜的气味。)", note: "[记] scentless adj. 无气味的", x:"54.7%", y:"9.2%" },
+{ t: "aromatic", p: "/ˌærəˈmætɪk/", m: "adj. 芳香的", ex: "Aromatic herbs are used in cooking. (芳香草本植物被用于烹饪。)", note: "[记] aroma n. 浓香", x:"84.4%", y:"36.2%"}
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6VUYD.jpg",
+            en: "As fruit ripen, they may wither and decompose if they fall to the ground.",
+            zh: "随着果实成熟，如果掉落在地上，它们可能会枯萎并分解。",
+            words: [
+{ t: "ripen", p: "/ˈriṃpən/", m: "v. 成熟", ex: "The sun helps to ripen the tomatoes. (阳光有助于西红柿成熟。)", note: "[记] ripe adj. 成熟的", x: "44.0%", y: "17.0%" },
+{ t: "fruit", p: "/fruːt/", m: "n. 水果/果实", ex: "The tree bears a lot of fruit. (这棵树果实累累。)", note: "[搭] bear fruit 结果实；取得成果", x: "10.0%", y: "86.0%" },
+{ t: "wither", p: "/ˈwɪðə(r)/", m: "v. 枯萎", ex: "The flowers withered in the heat. (花朵在酷热中枯萎了。)", note: "[记] 联想：weather(天气) -> 经受天气暴晒 -> 枯萎", x: "67.0%", y: "35.0%" },
+{ t: "decompose", p: "/ˌdiːkəmˈpəʊz/", m: "v. 分解/腐烂", ex: "Bacteria decompose organic matter. (细菌分解有机物。)", note: "[记] de-(除去) + compose(组成) -> 拆解组成", x: "87.0%", y: "50.0%" }
+
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6Ztun.jpg",
+            en: "Food will rot and decay, becoming stale in the open air.",
+            zh: "食物会腐烂变质，在空气中变得陈旧不新鲜。",
+            words: [
+                { t: "rot", p: "/rɒt/", m: "v. 腐烂", ex: "The wood is starting to rot. (木头开始腐烂了。)", note: "[记] rotten adj. 腐烂的", x: "30%", y: "50%" },
+                { t: "decay", p: "/dɪˈkeɪ/", m: "v./n. 腐朽/衰退", ex: "Sugar causes tooth decay. (糖会导致蛀牙。)", note: "[搭] urban decay 城市衰落", x: "50%", y: "50%" },
+                { t: "stale", p: "/steɪl/", m: "adj. 不新鲜的/陈旧的", ex: "This bread is stale. (这面包不新鲜了。)", note: "[搭] stale news 过时的消息", x: "70%", y: "50%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6ZdEV.jpg",
+            en: "Beyond the rainforest and jungle, there is a large plantation and terrace field.",
+            zh: "在雨林和丛林之外，有一大片种植园和梯田。",
+            words: [
+{ t: "rainforest", p: "/ˈreɪnfɒrɪst/", m: "n. 雨林", ex: "Tropical rainforests are disappearing. (热带雨林正在消失。)", note: "[搭] tropical rainforest 热带雨林", x: "42.5%", y: "6%" },
+{ t: "jungle", p: "/ˈdʒʌŋɡl/", m: "n. 丛林", ex: "The law of the jungle. (丛林法则。)", note: "[记] 联想：Jungle Bell(不，是丛林)", x: "70.5%", y: "7.7%" },
+{ t: "plantation", p: "/plɑːnˈteɪʃn/", m: "n. 种植园", ex: "A rubber plantation. (橡胶种植园。)", note: "[记] plant(种植) + ation(名词后缀)", x: "46.8%", y: "53.4%" },
+{ t: "field", p: "/fiːld/", m: "n. 田地/领域", ex: "He is an expert in his field. (他是他所在领域的专家。)", note: "[搭] field work 野外工作", x: "49.8%", y: "74.4%" },
+{ t: "terrace", p: "/ˈterəs/", m: "n. 梯田/露台", ex: "Rice is grown on terraces. (水稻种在梯田上。)", note: "[搭] terrace field 梯田", x: "88.2%", y: "92.5%" }
+            ]
+        },
+        {
+            img: "https://s41.ax1x.com/2026/01/19/pZ6ZsgJ.jpg",
+            en: "The forestry brand uses a log as its logo for timber and charcoal products.",
+            zh: "该林业品牌使用原木作为其木材和木炭产品的标识。",
+            words: [
+{ t: "timber", p: "/ˈtɪmbə(r)/", m: "n. 木材", ex: "These trees are grown for timber. (这些树是作为木材种植的。)", note: "[记] 同义词：lumber", x: "37.0%", y: "92.0%" },
+{ t: "charcoal", p: "/ˈtʃɑːkəʊl/", m: "n. 木炭", ex: "We used charcoal for the BBQ. (我们用木炭烧烤。)", note: "[记] char(烧焦) + coal(煤)", x: "61.0%", y: "92.0%" },
+{ t: "log", p: "/lɒɡ/", m: "n. 原木/日志", ex: "Keep a log of your work. (记录你的工作日志。)", note: "[搭] log in 登录", x: "17.0%", y: "21.0%" },
+{ t: "logo", p: "/ˈləʊɡəʊ/", m: "n. 标识", ex: "The company logo is simple. (公司的标识很简单。)", note: "[记] 希腊语 logos (语言/比例)", x: "61.0%", y: "23.0%" },
+{ t: "forestry", p: "/ˈfɒrɪstri/", m: "n. 林业", ex: "He studied forestry at college. (他在大学学习林业。)", note: "[记] forest + ry", x: "82.0%", y: "15.0%" }
+            ]
+        },
+        {
+            img: "17.jpg",
+            en: "A thick bough stems from the trunk, while the root remains underground.",
+            zh: "粗壮的大树枝从树干生出，而树根留在地下。",
+            words: [
+                { t: "branch", p: "/brɑːntʃ/", m: "n. 树枝/分支", ex: "A bank branch. (银行分行。)", note: "[搭] branch office 分公司", x: "20%", y: "45%" },
+                { t: "trunk", p: "/trʌŋk/", m: "n. 树干/象鼻/后备箱", ex: "Put the bags in the trunk. (把包放进后备箱。)", note: "[记] 主体部分", x: "45%", y: "45%" },
+                { t: "bough", p: "/baʊ/", m: "n. 大树枝", ex: "Apple boughs heavy with fruit. (挂满果实的大树枝。)", note: "[记] 联想：bow(弯腰) -> 沉重的树枝会下垂", x: "75%", y: "45%" },
+                { t: "root", p: "/ruːt/", m: "n. 根/根源", ex: "Money is the root of all evil. (金钱是万恶之源。)", note: "[搭] take root 扎根", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "18.jpg",
+            en: "Farmers use hay and straw to feed animals, but must remove thorns and weeds.",
+            zh: "农民使用干草和稻草喂养动物，但必须清除刺和杂草。",
+            words: [
+                { t: "hay", p: "/heɪ/", m: "n. 干草", ex: "Make hay while the sun shines. (趁热打铁/晒草要趁太阳好。)", note: "[搭] hay fever 花粉热", x: "20%", y: "35%" },
+                { t: "straw", p: "/strɔː/", m: "n. 稻草/吸管", ex: "Drink through a straw. (用吸管喝水。)", note: "[记] 联想：吸管像细长的稻草", x: "40%", y: "35%" },
+                { t: "reed", p: "/riːd/", m: "n. 芦苇", ex: "Reeds grow by the river. (芦苇生长在河边。)", note: "[记] 联想：芦苇笛(reed pipe)", x: "60%", y: "35%" },
+                { t: "thorn", p: "/θɔːn/", m: "n. 刺", ex: "No rose without a thorn. (没有不带刺的玫瑰。)", note: "[搭] a thorn in one's side 肉中刺", x: "80%", y: "35%" },
+                { t: "weed", p: "/wiːd/", m: "n. 杂草", ex: "The garden is full of weeds. (花园里长满了杂草。)", note: "[记] 区分：weed(草) vs seed(种子)", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "19.jpg",
+            en: "A green meadow or a mown lawn is the perfect place to enjoy the grass.",
+            zh: "绿色的草地或修剪过的草坪是欣赏青草的绝佳去处。",
+            words: [
+                { t: "grass", p: "/ɡrɑːs/", m: "n. 草/青草", ex: "Don't walk on the grass. (不要在草坪上行走。)", note: "[记] grassland n. 草原", x: "20%", y: "50%" },
+                { t: "meadow", p: "/ˈmedəʊ/", m: "n. 草地/牧场", ex: "Cows are grazing in the meadow. (牛正在牧场上吃草。)", note: "[记] 联想：meadow(草地)很mellow(柔和)", x: "50%", y: "50%" },
+                { t: "lawn", p: "/lɔːn/", m: "n. 草坪", ex: "He is mowing the lawn. (他正在修剪草坪。)", note: "[搭] lawn mower 割草机", x: "80%", y: "50%" }
+            ]
+        },
+        {
+            img: "20.jpg",
+            en: "An olive branch, a tall pine, and a winding vine decorate the hillside.",
+            zh: "一枝橄榄枝、一棵高大的松树和一株缠绕的藤蔓装饰着山坡。",
+            words: [
+                { t: "olive", p: "/ˈɒlɪv/", m: "n. 橄榄", ex: "An olive branch is a symbol of peace. (橄榄枝是和平的象征。)", note: "[搭] olive oil 橄榄油", x: "25%", y: "50%" },
+                { t: "pine", p: "/paɪn/", m: "n. 松树", ex: "The smell of pine needles. (松针的味道。)", note: "[搭] pine tree 松树", x: "50%", y: "50%" },
+                { t: "vine", p: "/vaɪn/", m: "n. 藤蔓/葡萄树", ex: "Ivy is a climbing vine. (常春藤是一种攀缘藤蔓。)", note: "[记] vineyard n. 葡萄园", x: "75%", y: "50%" }
+            ]
+        },
+//*******************************************************************
+{
+            img: "21.jpg",
+            en: "In the garden, the purple violet and elegant tulip grow alongside fresh mint.",
+            zh: "花园里，紫色的紫罗兰和优雅的郁金香与新鲜的薄荷一起生长。",
+            words: [
+                { t: "violet", p: "/ˈvaɪələt/", m: "n. 紫罗兰/紫罗兰色", ex: "The hills were covered with wild violets. (山上长满了野生的紫罗兰。)", note: "[记] 颜色联想：与 purple 相似但更偏蓝的紫色", x: "20%", y: "50%" },
+                { t: "tulip", p: "/ˈtjuːlɪp/", m: "n. 郁金香", ex: "Tulips bloom in various colors in spring. (郁金香在春天开出各种颜色的花。)", note: "[搭] tulip bulb 郁金香球茎", x: "50%", y: "50%" },
+                { t: "mint", p: "/mɪnt/", m: "n. 薄荷/铸币厂", ex: "I'd like a cup of tea with fresh mint. (我想喝杯加了新鲜薄荷的茶。)", note: "[搭] in mint condition 完好如初/崭新的", x: "80%", y: "50%" }
+            ]
+        },
+        {
+            img: "22.jpg",
+            en: "An enzyme acts as a catalyst for alga growing near the coral reef.",
+            zh: "一种酶充当了珊瑚礁附近生长的海藻的催化剂。",
+            words: [
+                { t: "reef", p: "/riːf/", m: "n. 礁/暗礁", ex: "The ship struck a coral reef. (船撞上了珊瑚礁。)", note: "[搭] Great Barrier Reef 大堡礁", x: "20%", y: "35%" },
+                { t: "alga", p: "/ˈælɡə/", m: "n. 海藻/藻类", ex: "Alga can spread quickly in warm water. (海藻在温暖的水中会迅速扩散。)", note: "[记] 复数形式为 algae /ˈældʒiː/", x: "45%", y: "35%" },
+                { t: "enzyme", p: "/ˈenzaɪm/", m: "n. 酶", ex: "Enzymes are essential for digestion. (酶对于消化至关重要。)", note: "[记] 词根 en-(在内) + zyme(发酵)", x: "75%", y: "35%" },
+                { t: "catalyst", p: "/ˈkætəlɪst/", m: "n. 催化剂", ex: "The new law was a catalyst for change. (新法律是变革的催化剂。)", note: "[记] catalyze v. 催化；促进", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "23.jpg",
+            en: "Plants absorb sunlight and release oxygen, maintaining the atmospheric circulation while reducing emission.",
+            zh: "植物吸收阳光并释放氧气，在减少排放的同时维持大气循环。",
+            words: [
+                { t: "release", p: "/rɪˈliːs/", m: "v./n. 释放/发布", ex: "The factory agreed to release less waste. (工厂同意减少废物排放。)", note: "[搭] press release 新闻稿", x: "20%", y: "35%" },
+                { t: "emission", p: "/iˈmɪʃn/", m: "n. 排放/排放物", ex: "We must reduce carbon dioxide emissions. (我们必须减少二氧化碳排放。)", note: "[记] emit v. 发出/放射", x: "45%", y: "35%" },
+                { t: "absorb", p: "/əbˈzɔːb/", m: "v. 吸收", ex: "Black clothes absorb more heat. (黑衣服吸收更多的热量。)", note: "[记] absorption n. 吸收", x: "70%", y: "35%" },
+                { t: "circulation", p: "/ˌsɜːkjəˈleɪʃn/", m: "n. 循环/流通", ex: "Exercise improves blood circulation. (运动促进血液循环。)", note: "[记] circle n. 圆圈 -> 循环", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "24.jpg",
+            en: "When the uptake of energy exceeds the need, the plant stores it as a nutrient.",
+            zh: "当能量的摄取超过需求时，植物会将其作为养分储存起来。",
+            words: [
+                { t: "exceed", p: "/ɪkˈsiːd/", m: "v. 超过/超越", ex: "The cost must not exceed the budget. (成本绝不能超过预算。)", note: "[记] excess n. 过量；excessive adj. 过度的", x: "25%", y: "35%" },
+                { t: "uptake", p: "/ˈʌpteɪk/", m: "n. 摄取/吸收", ex: "The plants showed a high uptake of water. (这些植物表现出很高的吸水率。)", note: "[搭] slow on the uptake 反应迟钝", x: "50%", y: "35%" },
+                { t: "nutrient", p: "/ˈnjuːtriənt/", m: "n. 养分/滋养物", ex: "Plants draw nutrients from the soil. (植物从土壤中吸取养分。)", note: "[记] nutrition n. 营养；nutritious adj. 有营养的", x: "75%", y: "35%" },
+                { t: "energy", p: "/ˈenədʒi/", m: "n. 能量/活力", ex: "Solar energy is a clean power source. (太阳能是一种清洁能源。)", note: "[记] energetic adj. 精力充沛的", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "25.jpg",
+            en: "Plants have a mechanism to counterbalance changes in their surroundings.",
+            zh: "植物有一种机制来抵消周围环境的变化。",
+            words: [
+                { t: "surroundings", p: "/səˈraʊndɪŋz/", m: "n. 周围环境", ex: "Animals need to adapt to their surroundings. (动物需要适应它们的周围环境。)", note: "[记] 总是以复数形式出现", x: "30%", y: "40%" },
+                { t: "mechanism", p: "/ˈmekənɪzəm/", m: "n. 机制/机械装置", ex: "The plant's defense mechanism. (植物的防御机制。)", note: "[记] mechanical adj. 机械的", x: "70%", y: "40%" },
+                { t: "counterbalance", p: "/ˈkaʊntəbæləns/", m: "v./n. 抵消/平衡力", ex: "The gain was counterbalanced by the loss. (收益被损失抵消了。)", note: "[记] counter-(相反) + balance(平衡)", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "26.jpg",
+            en: "Environmental conservation aims to protect and preserve rare species.",
+            zh: "环境保育旨在保护和保存稀有物种。",
+            words: [
+                { t: "protect", p: "/prəˈtekt/", m: "v. 保护", ex: "Sunscreen protects your skin. (防晒霜保护你的皮肤。)", note: "[记] protection n. 保护；protective adj. 保护性的", x: "30%", y: "50%" },
+                { t: "preserve", p: "/prɪˈzɜːv/", m: "v. 保存/保护", ex: "We must preserve historical sites. (我们必须保护历史遗迹。)", note: "[记] preservation n. 保存", x: "50%", y: "50%" },
+                { t: "conservation", p: "/ˌkɒnsəˈveɪʃn/", m: "n. 保育/节约", ex: "Water conservation is vital. (节约用水至关重要。)", note: "[记] conserve v. 保存/节约", x: "70%", y: "50%" }
+            ]
+        },
+        {
+            img: "27.jpg",
+            en: "A bush fire can destruct the forest, making plants ruin and perish unless we extinguish it.",
+            zh: "丛林火灾会破坏森林，除非我们扑灭它，否则会让植物毁掉并枯死。",
+            words: [
+                { t: "bush fire", p: "/ˈbʊʃ faɪə(r)/", m: "n. 丛林火灾", ex: "Bush fires are common in dry summers. (丛林大火在干旱的夏天很常见。)", note: "[记] bush(灌木/丛林) + fire(火)", x: "20%", y: "35%" },
+                { t: "extinguish", p: "/ɪkˈstɪŋɡwɪʃ/", m: "v. 扑灭/熄灭", ex: "Firemen worked to extinguish the flames. (消防员努力扑灭火焰。)", note: "[搭] fire extinguisher 灭火器", x: "45%", y: "35%" },
+                { t: "destruct", p: "/dɪˈstrʌkt/", m: "v. 破坏/摧毁", ex: "The system will self-destruct. (系统将自动销毁。)", note: "[记] destruction n. 破坏；destructive adj. 毁灭性的", x: "75%", y: "35%" },
+                { t: "ruin", p: "/ˈruːɪn/", m: "v./n. 毁灭/废墟", ex: "The storm ruined the crops. (大雨毁掉了庄稼。)", note: "[搭] in ruins 成为废墟", x: "35%", y: "75%" },
+                { t: "perish", p: "/ˈperɪʃ/", m: "v. 枯死/凋谢/毁灭", ex: "Flowers perish without water. (花朵没有水就会枯萎。)", note: "[记] 语气比 die 更正式，常指因恶劣环境而死", x: "65%", y: "75%" }
+            ]
+        },
+        {
+            img: "28.jpg",
+            en: "To infringe on habitats will undermine nature and lead to the extinction of species, so we shouldn't demolish forests.",
+            zh: "侵犯栖息地会破坏自然并导致物种灭绝，因此我们不应该砍伐森林。",
+            words: [
+                { t: "demolish", p: "/dɪˈmɒlɪʃ/", m: "v. 拆除/推翻/砍伐", ex: "Old buildings were demolished. (旧建筑物被拆除了。)", note: "[记] demolition n. 拆除", x: "20%", y: "35%" },
+                { t: "infringe", p: "/ɪnˈfrɪndʒ/", m: "v. 侵犯/违反", ex: "Don't infringe on other's rights. (不要侵犯他人的权利。)", note: "[搭] infringe on/upon 侵犯", x: "45%", y: "35%" },
+                { t: "undermine", p: "/ˌʌndəˈmaɪn/", m: "v. 破坏/暗中破坏", ex: "Critics tried to undermine his authority. (批评者试图削弱他的权威。)", note: "[记] under-(在下面) + mine(挖矿) -> 从底部挖空 -> 破坏", x: "75%", y: "35%" },
+                { t: "extinction", p: "/ɪkˈstɪŋkʃn/", m: "n. 灭绝", ex: "The species is facing extinction. (该物种面临灭绝。)", note: "[记] extinct adj. 灭绝的/绝迹的", x: "50%", y: "75%" }
+            ]
+        },
+        {
+            img: "29.jpg",
+            en: "The pattern of climate change will have a serious outcome and impact on growth.",
+            zh: "气候变化的模式将对生长产生严重后果和影响。",
+            words: [
+                { t: "pattern", p: "/ˈpætn/", m: "n. 模式/图案", ex: "We noticed a pattern in the weather. (我们注意到了天气的某种模式。)", note: "[搭] behavior pattern 行为模式", x: "30%", y: "50%" },
+                { t: "outcome", p: "/ˈaʊtkʌm/", m: "n. 结果/后果", ex: "We are waiting for the final outcome. (我们正在等待最后的结果。)", note: "[记] out-(出来) + come(来) -> 出来的结果", x: "50%", y: "50%" },
+                { t: "impact", p: "/ˈɪmpækt/", m: "n./v. 影响/冲击", ex: "The impact of the new policy. (新政策的影响。)", note: "[搭] have an impact on 对...有影响", x: "70%", y: "50%" }
+            ]
+        },
+        {
+            img: "30.jpg",
+            en: "Under favourable conditions, the seasonal plants are used for an experimental project.",
+            zh: "在有利的条件下，这些季节性植物被用于一个实验项目。",
+            words: [
+                { t: "seasonal", p: "/ˈsiːzənl/", m: "adj. 季节性的", ex: "Seasonal workers pick the fruit. (季节工采摘水果。)", note: "[记] season n. 季节", x: "20%", y: "50%" },
+                { t: "experimental", p: "/ɪkˌsperɪˈmentl/", m: "adj. 实验性的", ex: "The drug is still experimental. (这种药物仍处于实验阶段。)", note: "[记] experiment n. 实验", x: "50%", y: "50%" },
+                { t: "favourable", p: "/ˈfeɪvərəbl/", m: "adj. 有利的/赞成的", ex: "The weather was favourable for a hike. (天气有利于徒步旅行。)", note: "[记] favour n. 恩惠/支持", x: "80%", y: "50%" }
+            ]
+        },
+{
+            img: "31.jpg",
+            en: "An effective strategy and efficient tools make the team highly productive.",
+            zh: "有效的策略和高效的工具使团队非常有生产力。",
+            words: [
+                { t: "productive", p: "/prəˈdʌktɪv/", m: "adj. 多产的/富有成效的", ex: "The meeting was very productive. (这次会议非常有成效。)", note: "[记] produce v.生产 -> product n.产品 -> productive adj.", x: "20%", y: "50%" },
+                { t: "effective", p: "/ɪˈfektɪv/", m: "adj. 有效的/实际的", ex: "The new law becomes effective next week. (新法律将于下周生效。)", note: "[记] effect n.效果 -> effective (强调能产生预期结果的)", x: "50%", y: "50%" },
+                { t: "efficient", p: "/ɪˈfɪʃnt/", m: "adj. 效率高的/有能力的", ex: "The new machine is more efficient. (这台新机器效率更高。)", note: "[记] efficiency n.效率 (强调投入与产出比，不浪费资源)", x: "80%", y: "50%" }
+            ]
+        },
+        {
+            img: "32.jpg",
+            en: "The project required a considerable amount of work due to the massive and immense scale of the forest.",
+            zh: "由于森林规模巨大且广阔，该项目需要大量的工作。",
+            words: [
+                { t: "considerable", p: "/kənˈsɪdərəbl/", m: "adj. 相当大的/值得考虑的", ex: "He has a considerable influence on the team. (他对团队有相当大的影响力。)", note: "[记] consider v.考虑 -> -able (值得考虑的量 -> 大量的)", x: "20%", y: "50%" },
+                { t: "massive", p: "/ˈmæsɪv/", m: "adj. 巨大的/厚重的", ex: "The wall was made of massive stones. (这堵墙是由巨大的石头砌成的。)", note: "[记] mass n.质量/团 -> massive (强调体积或质量巨大)", x: "50%", y: "50%" },
+                { t: "immense", p: "/ɪˈmens/", m: "adj. 极大的/无边的", ex: "The universe is immense. (宇宙是无边无际的。)", note: "[记] im-(不) + mense(测量) -> 无法测量的 -> 极大的", x: "80%", y: "50%" }
+            ]
+        },
+        {
+            img: "33.jpg",
+            en: "We need to find the optimal balance between the maximal output and minimal cost.",
+            zh: "我们需要在最大产出和最小成本之间找到最佳平衡点。",
+            words: [
+                { t: "maximal", p: "/ˈmæksɪməl/", m: "adj. 最大的/最高的", ex: "The project needs maximal effort from everyone. (该项目需要每个人的最大努力。)", note: "[记] maximum n.最大值", x: "20%", y: "50%" },
+                { t: "minimal", p: "/ˈmɪnɪməl/", m: "adj. 最小的/极少的", ex: "The damage to the car was minimal. (汽车的损坏极小。)", note: "[记] minimum n.最小值", x: "50%", y: "50%" },
+                { t: "optimal", p: "/ˈɒptɪməl/", m: "adj. 最佳的/最理想的", ex: "The optimal temperature for plant growth. (植物生长的最佳温度。)", note: "[记] optimum n.最佳条件；optimize v.优化", x: "80%", y: "50%" }
+            ]
+        }
+
+//***************************************************************
+    ];
+
+    function speak(t) {
+        if (!t) return;
+        if (audio) audio.pause();
+        window.speechSynthesis.cancel();
+        const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(t)}&type=2`;
+        audio = new Audio(url);
+        audio.play().catch(() => {
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'en-US';
+            u.rate = 0.8;
+            window.speechSynthesis.speak(u);
+        });
+    }
+
+    function start() { document.getElementById('start-overlay').style.display = 'none'; render(); }
+
+    function render() {
+        const data = dataset[current];
+        const area = document.getElementById('image-area');
+        area.innerHTML = '';
+        area.style.backgroundImage = `url('${data.img}')`;
+
+        data.words.forEach(w => {
+            const tag = document.createElement('div');
+            tag.className = 'word-tag';
+            tag.innerText = w.t;
+            tag.style.left = w.x; tag.style.top = w.y;
+            tag.onclick = (e) => {
+                e.stopPropagation();
+                speak(w.t);
+                document.getElementById('d-init').style.display = 'none';
+                document.getElementById('d-box').style.display = 'block';
+                document.getElementById('dw').innerText = w.t;
+                document.getElementById('ipa').innerText = w.p;
+                document.getElementById('dm').innerText = w.m;
+                document.getElementById('dex').innerText = w.ex;
+                const nBox = document.getElementById('dn-box');
+                if(w.note) { nBox.innerText = "✨ 记忆宝典: " + w.note; nBox.style.display = 'block'; }
+                else { nBox.style.display = 'none'; }
+                document.querySelectorAll('.word-tag').forEach(k => k.classList.remove('active'));
+                tag.classList.add('active');
+            };
+            area.appendChild(tag);
+        });
+
+        document.getElementById('s-en').innerText = data.en;
+        document.getElementById('s-zh').innerText = data.zh;
+        document.getElementById('page-num').innerText = `${current + 1} / ${dataset.length}`;
+        document.getElementById('pBtn').disabled = current === 0;
+        document.getElementById('nBtn').disabled = current === dataset.length - 1;
+        document.getElementById('d-init').style.display = 'block';
+        document.getElementById('d-box').style.display = 'none';
+    }
+
+    function move(n) { current += n; render(); document.getElementById('scrollable-body').scrollTo(0,0); }
+
+    function handleSearch() {
+        const q = document.getElementById('search-input').value.toLowerCase().trim();
+        const res = document.getElementById('search-results');
+        if(!q) { res.style.display = 'none'; return; }
+        let h = '';
+        dataset.forEach((p, pi) => {
+            p.words.forEach(w => {
+                if(w.t.includes(q) || w.m.includes(q) || (w.note && w.note.includes(q))) {
+                    h += `<div class="res-item" onclick="go(${pi}, '${w.t}')">🔍 ${w.t} - ${w.m}</div>`;
+                }
+            });
+        });
+        res.innerHTML = h || '<div class="res-item" style="color:#999">未找到相关词汇或笔记</div>';
+        res.style.display = 'block';
+    }
+
+    function go(i, word) {
+        current = i;
+        document.getElementById('search-results').style.display = 'none';
+        document.getElementById('search-input').value = '';
+        render();
+        setTimeout(() => {
+            const tags = document.querySelectorAll('.word-tag');
+            tags.forEach(t => { if(t.innerText === word) t.click(); });
+        }, 150);
+    }
+</script>
+</body>
+</html>
