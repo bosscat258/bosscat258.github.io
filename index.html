@@ -15,7 +15,7 @@
         .res-item { padding: 12px; border-bottom: 1px solid #f9f9f9; font-size: 0.9em; }
         #scrollable-body { flex: 1; overflow-y: auto; padding-bottom: 80px; }
         #image-area { width: 100%; aspect-ratio: 4/3; background-size: cover; background-position: center; position: relative; background-color: #e0e0e0; }
-        .tag { position: absolute; background: rgba(74, 144, 226, 0.0); color: black; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: bold;  cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.0); }
+        .tag { position: absolute; background: rgba(74, 144, 226, 0.0); color: black; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: bold;  cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.0); transition: color 0.2s; }
         #s-title { background: #eef5ff; display: block; padding: 4px 15px; border-radius: 20px; margin: 15px auto 10px; width: fit-content; font-weight: bold; color: var(--primary); font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #main-content { padding: 0 20px 20px; }
         .audio-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 6px; cursor: pointer; flex-shrink: 0; }
@@ -28,7 +28,7 @@
         .phonetic-btn { background: #eef5ff; border: 1px solid #d0e3f9; padding: 4px 8px; border-radius: 6px; font-size: 0.7em; color: #777; cursor: pointer; display: flex; align-items: center; }
         #d-m { font-size: 0.85em; font-weight: bold; margin-bottom: 8px; color: #444; }
         #d-note { color: #777; font-size: 0.75em; line-height: 1.6; margin-bottom: 12px; }
-        #d-ex { color: #555; font-size: 0.8em; background: #fff; padding: 8px; border-radius: 6px; border-left: 3px solid #adcff7; line-height: 1.4; display: flex; align-items: flex-start; }
+        #d-ex { color: #555; font-size: 0.8em; background: #fff; padding: 8px; border-radius: 6px; border-left: 3px solid #adcff7; line-height: 1.4; display: flex; align-items: flex-start; cursor: pointer; }
         #nav-bar { position: absolute; bottom: 0; width: 100%; height: 60px; display: flex; background: white; border-top: 1px solid #eee; align-items: center; justify-content: space-around; padding: 0 20px; }
         button { padding: 8px 20px; border: none; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 0.9em; }
         button:disabled { background: #ccc; }
@@ -55,10 +55,10 @@
                 <div id="d-t" style="text-transform: lowercase;"></div>
                 <div class="phonetic-wrap">
                     <div class="phonetic-btn" onclick="speakWord(1)">
-                        <span id="p-uk">英 [ ]</span><img src="image_f396a7.png" class="phonetic-icon">
+                        <span id="p-uk">英 [ ]</span><img src="https://img.icons8.com/material-rounded/24/4a90e2/speaker.png" class="phonetic-icon">
                     </div>
                     <div class="phonetic-btn" onclick="speakWord(2)">
-                        <span id="p-us">美 [ ]</span><img src="image_f396a7.png" class="phonetic-icon">
+                        <span id="p-us">美 [ ]</span><img src="https://img.icons8.com/material-rounded/24/4a90e2/speaker.png" class="phonetic-icon">
                     </div>
                 </div>
                 <div id="d-m"></div>
@@ -106,7 +106,7 @@ const dataset = [
         {
             title: "食堂的“暗黑料理”", img: "demo_pic/demo3.jpg",
             en: "Although the chef claimed this 'mystery soup' met the safety standard and was nutritious, the student filed a complaint and used bread as a substitute rather than starve.",
-            zh: "尽管厨师声称这碗“神秘汤”符合安全标准且有营养，但学生宁愿投诉并用面包作为替代品，也不愿挨饿。",
+            zh: "尽管厨师声声称这碗“神秘汤”符合安全标准且有营养，但学生宁愿投诉并用面包作为替代品，也不愿挨饿。",
             words: [
                 { t: "standard", uk: "[ˈstændəd]", us: "[ˈstændərd]", m: "n. 标准", ex: "Your work is below the required standard. (你的工作低于要求的标准。)", note: "stand(站立) -> 站得住的规则。搭配：living standard (生活水平)", x: "19%", y: "82%" },
                 { t: "nutritious", uk: "[njuˈtrɪʃəs]", us: "[nuˈtrɪʃəs]", m: "adj. 有营养的", ex: "Vegetables are a nutritious part of our diet. (蔬菜是我们饮食中营养丰富的一部分。)", note: "nutri(养分) -> 多养分的。搭配：nutritious food (营养丰富的食物)", x: "48%", y: "13%" },
@@ -158,6 +158,7 @@ const dataset = [
             tag.style.left = w.x;
             tag.style.top = w.y;
             tag.innerText = w.t;
+            tag.dataset.word = w.t; // 方便后面查找
             tag.onclick = (e) => { e.stopPropagation(); showDetail(w); };
             area.appendChild(tag);
         });
@@ -172,6 +173,16 @@ const dataset = [
         currentWord = w.t;
         // 提取例句中的英文部分用于发音
         currentExAudio = w.ex.split('(')[0]; 
+
+        // 调整标签颜色：点击的变蓝，其他的变黑
+        const tags = document.querySelectorAll('.tag');
+        tags.forEach(t => {
+            if(t.innerText === w.t) {
+                t.style.color = '#4a90e2';
+            } else {
+                t.style.color = 'black';
+            }
+        });
         
         document.getElementById('d-init').style.display = 'none';
         document.getElementById('d-box').style.display = 'block';
