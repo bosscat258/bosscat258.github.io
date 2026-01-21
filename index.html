@@ -78,70 +78,65 @@
 </div>
 
 <script>
-  const dataset = [
+const dataset = [
         {
-            img: "demo_pic/demo1.jpg",
-            title: "学霸的“超能力”", 
+            title: "学霸的“超能力”",img: "demo_pic/demo1.jpg",
             en: "To reach a high level of achievement, he tried to concentrate on his books with high efficiency, but a flying mosquito distracted him until he felt exhausted.",
             zh: "为了获得极高的成就，他试图以极高的效率专注于书本，但一只飞蚊不停地让他分心，直到他感到精疲力竭。",
             words: [
-                { t: "concentrate", uk: "[ˈkɒnsntreɪt]", us: "[ˈkɑːnsntreɪt]", m: "v. 专注", ex: "I struggle to concentrate when it is too noisy. (太吵的时候我很难集中注意力。)", note: "con(一起)+centr(中心) -> 全部聚在中心。搭配：concentrate on (全神贯注于...)", x: "32%", y: "49%" },
-                { t: "distract", uk: "[dɪˈstrækt]", us: "[dɪˈstrækt]", m: "v. 分心", ex: "Don't let the phone distract you from your study. (不要让手机分散你学习的注意力。)", note: "dis(分开)+tract(拉) -> 把注意力拉开。搭配：distract attention (分散注意力)", x: "10%", y: "10%" },
-                { t: "efficiency", uk: "[ɪˈfɪʃnsi]", us: "[ɪˈfɪʃnsi]", m: "n. 效率", ex: "The new machine will increase our work efficiency. (新机器将提高我们的工作效率。)", note: "eff(出)+fici(做) -> 做出来的效果。搭配：work efficiency (工作效率)", x: "48%", y: "8%" },
-                { t: "achievement", uk: "[əˈtʃiːvmənt]", us: "[əˈtʃiːvmənt]", m: "n. 成就/成绩", ex: "This prize is a great achievement for the team. (这个奖项对团队来说是一项巨大的成就。)", note: "a+chiev(首领) -> 成果。搭配：a sense of achievement (成就感)", x: "84%", y: "8%" },
-                { t: "exhausted", uk: "[ɪɡˈzɔːstɪd]", us: "[ɪɡˈzɔːstɪd]", m: "adj. 精疲力竭", ex: "The long walk left us completely exhausted. (长距离的行走让我们彻底精疲力竭。)", note: "ex(出)+haust(抽水) -> 精力抽干。搭配：feel exhausted (感到精疲力竭)", x: "85%", y: "76%" }
+                { t: "concentrate", uk: "[ˈkɒnsntreɪt]", us: "[ˈkɑːnsntreɪt]", m: "v. 专注", ex: "I struggle to concentrate when it is too noisy. (太吵的时候我很难集中注意力。)", note: "con(一起)+centr(中心) -> 全部聚在中心。搭配：concentrate on (全神贯注于...)", x: "32.2%", y: "51%" },
+                { t: "distract", uk: "[dɪˈstrækt]", us: "[dɪˈstrækt]", m: "v. 分心", ex: "Don't let the phone distract you from your study. (不要让手机分散你学习的注意力。)", note: "dis(分开)+tract(拉) -> 把注意力拉开。搭配：distract attention (分散注意力)", x: "10.5%", y: "12%" },
+                { t: "efficiency", uk: "[ɪˈfɪʃnsi]", us: "[ɪˈfɪʃnsi]", m: "n. 效率", ex: "The new machine will increase our work efficiency. (新机器将提高我们的工作效率。)", note: "eff(出)+fici(做) -> 做出来的效果。搭配：work efficiency (工作效率)", x: "44.6%", y: "6.4%" },
+                { t: "achievement", uk: "[əˈtʃiːvmənt]", us: "[əˈtʃiːvmənt]", m: "n. 成就/成绩", ex: "This prize is a great achievement for the team. (这个奖项对团队来说是一项巨大的成就。)", note: "a+chiev(首领) -> 成果。搭配：a sense of achievement (成就感)", x: "86.7%", y: "8%" },
+                { t: "exhausted", uk: "[ɪɡˈzɔːstɪd]", us: "[ɪɡˈzɔːstɪd]", m: "adj. 精疲力竭", ex: "The long walk left us completely exhausted. (长距离的行走让我们彻底精疲力竭。)", note: "ex(出)+haust(抽水) -> 精力抽干。搭配：feel exhausted (感到精疲力竭)", x: "88%", y: "78.4%" }
             ]
         },
         {
-            img: "demo_pic/demo2.jpg",
-            title: "绝望的“深夜突击”", 
+            title: "绝望的“深夜突击”", img: "demo_pic/demo2.jpg",
             en: "It is inevitable that you must overcome your sleepiness to finish this urgent assignment, because you chose to postpone it until the last minute.",
             zh: "你必须克服困意来完成这项紧急的任务，这是不可避免的，因为你选择把事推迟到了最后一分钟。",
             words: [
-                { t: "assignment", uk: "[əˈsaɪnmənt]", us: "[əˈsaɪnmənt]", m: "n. 任务/作业", ex: "The teacher gave us a difficult assignment. (老师给了我们一项很难的作业。)", note: "as+sign(签名) -> 签名的任务。搭配：submit an assignment (提交任务/作业)", x: "71%", y: "76%" },
-                { t: "postpone", uk: "[pəˈspəʊn]", us: "[pəˈspoʊn]", m: "v. 推迟", ex: "We had to postpone the game because of rain. (因为下雨，我们不得不推迟比赛。)", note: "post(后)+pone(放) -> 延后。搭配：postpone a meeting (推迟会议)", x: "30%", y: "91%" },
-                { t: "urgent", uk: "[ˈɜːdʒənt]", us: "[ˈɜːrdʒənt]", m: "adj. 紧急的", ex: "I received an urgent message this morning. (今天早上我收到了一条紧急消息。)", note: "urg(催促)+ent -> 紧急。搭配：urgent matter (紧急事项)", x: "45%", y: "15%" },
-                { t: "inevitable", uk: "[ɪnˈevɪtəbl]", us: "[ɪnˈevɪtəbl]", m: "adj. 不可避免的", ex: "War is not inevitable if we talk. (如果通过对话，战争并非不可避免。)", note: "in(不)+evit(避开) -> 避不开。搭配：an inevitable result (必然的结果)", x: "90%", y: "49%" },
-                { t: "overcome", uk: "[ˌəʊvəˈkʌm]", us: "[ˌoʊvərˈkʌm]", m: "v. 克服", ex: "She eventually overcame her shyness. (她最终克服了她的害羞。)", note: "over(上)+come(来) -> 跨过。搭配：overcome difficulties (克服困难)", x: "64%", y: "23%" }
+                { t: "assignment", uk: "[əˈsaɪnmənt]", us: "[əˈsaɪnmənt]", m: "n. 任务/作业", ex: "The teacher gave us a difficult assignment. (老师给了我们一项很难的作业。)", note: "as+sign(签名) -> 签名的任务。搭配：submit an assignment (提交任务/作业)", x: "77.8%", y: "74.7%" },
+                { t: "postpone", uk: "[pəˈspəʊn]", us: "[pəˈspoʊn]", m: "v. 推迟", ex: "We had to postpone the game because of rain. (因为下雨，我们不得不推迟比赛。)", note: "post(后)+pone(放) -> 延后。搭配：postpone a meeting (推迟会议)", x: "39.1%", y: "91.3%" },
+                { t: "urgent", uk: "[ˈɜːdʒənt]", us: "[ˈɜːrdʒənt]", m: "adj. 紧急的", ex: "I received an urgent message this morning. (今天早上我收到了一条紧急消息。)", note: "urg(催促)+ent -> 紧急。搭配：urgent matter (紧急事项)", x: "46%", y: "16%" },
+                { t: "inevitable", uk: "[ɪnˈevɪtəbl]", us: "[ɪnˈevɪtəbl]", m: "adj. 不可避免的", ex: "War is not inevitable if we talk. (如果通过对话，战争并非不可避免。)", note: "in(不)+evit(避开) -> 避不开。搭配：an inevitable result (必然的结果)", x: "92%", y: "48.5%" },
+                { t: "overcome", uk: "[ˌəʊvəˈkʌm]", us: "[ˌoʊvərˈkʌm]", m: "v. 克服", ex: "She eventually overcame her shyness. (她最终克服了她的害羞。)", note: "over(上)+come(来) -> 跨过。搭配：overcome difficulties (克服困难)", x: "67%", y: "23%" }
             ]
         },
         {
-            img: "demo_pic/demo3.jpg",
-            title: "食堂的“暗黑料理”", 
+            title: "食堂的“暗黑料理”", img: "demo_pic/demo3.jpg",
             en: "Although the chef claimed this 'mystery soup' met the safety standard and was nutritious, the student filed a complaint and used bread as a substitute rather than starve.",
             zh: "尽管厨师声称这碗“神秘汤”符合安全标准且有营养，但学生宁愿投诉并用面包作为替代品，也不愿挨饿。",
             words: [
-                { t: "standard", uk: "[ˈstændəd]", us: "[ˈstændərd]", m: "n. 标准", ex: "Your work is below the required standard. (你的工作低于要求的标准。)", note: "stand(站立) -> 站得住的规则。搭配：living standard (生活水平)", x: "17%", y: "82%" },
-                { t: "nutritious", uk: "[njuˈtrɪʃəs]", us: "[nuˈtrɪʃəs]", m: "adj. 有营养的", ex: "Vegetables are a nutritious part of our diet. (蔬菜是我们饮食中营养丰富的一部分。)", note: "nutri(养分) -> 多养分的。搭配：nutritious food (营养丰富的食物)", x: "45%", y: "13%" },
-                { t: "starve", uk: "[stɑːv]", us: "[stɑːrv]", m: "v. 挨饿", ex: "They were left to starve in the desert. (他们被遗弃在沙漠中挨饿。)", note: "死得(谐音)。搭配：starve for (渴望得到...)", x: "86%", y: "10%" },
-                { t: "complaint", uk: "[kəmˈpleɪnt]", us: "[kəmˈpleɪnt]", m: "n. 投诉/抱怨", ex: "The manager dealt with our complaint quickly. (经理很快处理了我们的投诉。)", note: "com(起)+plain(诉)。搭配：file a complaint (提交投诉)", x: "50%", y: "90%" },
-                { t: "substitute", uk: "[ˈsʌbstɪtjuːt]", us: "[ˈsʌbstɪtuːt]", m: "n. 替代品", ex: "You can use honey as a substitute for sugar. (你可以用蜂蜜代替糖。)", note: "sub(下)+stit(放) -> 备选。搭配：substitute for (替代...)", x: "84%", y: "83%" }
+                { t: "standard", uk: "[ˈstændəd]", us: "[ˈstændərd]", m: "n. 标准", ex: "Your work is below the required standard. (你的工作低于要求的标准。)", note: "stand(站立) -> 站得住的规则。搭配：living standard (生活水平)", x: "19%", y: "82%" },
+                { t: "nutritious", uk: "[njuˈtrɪʃəs]", us: "[nuˈtrɪʃəs]", m: "adj. 有营养的", ex: "Vegetables are a nutritious part of our diet. (蔬菜是我们饮食中营养丰富的一部分。)", note: "nutri(养分) -> 多养分的。搭配：nutritious food (营养丰富的食物)", x: "48%", y: "13%" },
+                { t: "starve", uk: "[stɑːv]", us: "[stɑːrv]", m: "v. 挨饿", ex: "They were left to starve in the desert. (他们被遗弃在沙漠中挨饿。)", note: "死得(谐音)。搭配：starve for (渴望得到...)", x: "88%", y: "9.1%" },
+                { t: "complaint", uk: "[kəmˈpleɪnt]", us: "[kəmˈpleɪnt]", m: "n. 投诉/抱怨", ex: "The manager dealt with our complaint quickly. (经理很快处理了我们的投诉。)", note: "com(起)+plain(诉)。搭配：file a complaint (提交投诉)", x: "55%", y: "92%" },
+                { t: "substitute", uk: "[ˈsʌbstɪtjuːt]", us: "[ˈsʌbstɪtuːt]", m: "n. 替代品", ex: "You can use honey as a substitute for sugar. (你可以用蜂蜜代替糖。)", note: "sub(下)+stit(放) -> 备选。搭配：substitute for (替代...)", x: "90%", y: "85%" }
             ]
         },
         {
-            img: "demo_pic/demo4.jpg",
-            title: "月光族的“消费黑洞”",
+            title: "月光族的“消费黑洞”", img: "demo_pic/demo4.jpg",
             en: "After her budget was consumed by the irresistible attraction of luxury goods, she felt deep regret because she couldn't even afford a piece of bread.",
             zh: "在预算被奢侈品不可抗拒的诱惑消耗殆尽后，她感到深深的后悔，因为她现在连一片面包都负担不起了。",
             words: [
-                { t: "luxury", uk: "[ˈlʌkʃəri]", us: "[ˈlʌkʃəri]", m: "n. 奢侈品", ex: "We can't afford such a luxury. (我们负担不起这种奢侈。)", note: "lux(光) -> 发光的。搭配：luxury goods (奢侈品)", x: "41%", y: "8%" },
-                { t: "budget", uk: "[ˈbʌdʒɪt]", us: "[ˈbʌdʒɪt]", m: "n. 预算", ex: "The government cut the education budget. (政府削减了教育预算。)", note: "bud(钱包)+get。搭配：within budget (在预算内)", x: "12%", y: "90%" },
-                { t: "consume", uk: "[kənˈsjuːm]", us: "[kənˈsuːm]", m: "v. 消耗/消费", ex: "Big cars consume more fuel. (大排量汽车消耗更多燃料。)", note: "con+sum(拿)。搭配：time-consuming (耗时的)", x: "10%", y: "60%" },
-                { t: "afford", uk: "[əˈfɔːd]", us: "[əˈfɔːrd]", m: "v. 负担得起", ex: "We can't afford to lose any more time. (我们承担不起浪费更多时间了。)", note: "一再(af)往前(ford)。搭配：afford to do (担负得起做某事)", x: "90%", y: "35%" },
-                { t: "regret", uk: "[rɪˈɡret]", us: "[rɪˈɡret]", m: "v./n. 后悔", ex: "I regret telling him my secret. (我后悔把秘密告诉了他。)", note: "re(回)+gret(哭)。搭配：regret doing (后悔做了某事)", x: "69%", y: "33%" }
+                { t: "luxury", uk: "[ˈlʌkʃəri]", us: "[ˈlʌkʃəri]", m: "n. 奢侈品", ex: "We can't afford such a luxury. (我们负担不起这种奢侈。)", note: "lux(光) -> 发光的。搭配：luxury goods (奢侈品)", x: "42%", y: "7.3%" },
+                { t: "budget", uk: "[ˈbʌdʒɪt]", us: "[ˈbʌdʒɪt]", m: "n. 预算", ex: "The government cut the education budget. (政府削减了教育预算。)", note: "bud(钱包)+get。搭配：within budget (在预算内)", x: "10%", y: "93.8%" },
+                { t: "consume", uk: "[kənˈsjuːm]", us: "[kənˈsuːm]", m: "v. 消耗/消费", ex: "Big cars consume more fuel. (大排量汽车消耗更多燃料。)", note: "con+sum(拿)。搭配：time-consuming (耗时的)", x: "11%", y: "57%" },
+                { t: "afford", uk: "[əˈfɔːd]", us: "[əˈfɔːrd]", m: "v. 负担得起", ex: "We can't afford to lose any more time. (我们承担不起浪费更多时间了。)", note: "一再(af)往前(ford)。搭配：afford to do (担负得起做某事)", x: "92%", y: "36%" },
+                { t: "regret", uk: "[rɪˈɡret]", us: "[rɪˈɡret]", m: "v./n. 后悔", ex: "I regret telling him my secret. (我后悔把秘密告诉了他。)", note: "re(回)+gret(哭)。搭配：regret doing (后悔做了某事)", x: "74%", y: "33%" }
             ]
         },
         {
-            img: "demo_pic/demo5.jpg",
-            title: "职场新人的“光芒”", 
+            title: "职场新人的“光芒”", img: "demo_pic/demo5.jpg",
             en: "As a young candidate, he showed great potential and confidence during the interview, proving that he was fully qualified for the job.",
             zh: "作为一名年轻的候选人，他在面试中展现了巨大的潜力和自信，证明了他完全有资格胜任这份工作。",
             words: [
-                { t: "candidate", uk: "[ˈkændɪdət]", us: "[ˈkændɪdeɪt]", m: "n. 候选人", ex: "She is the best candidate for the job. (她是这个职位的最佳人选。)", note: "cand(白) -> 纯洁。搭配：ideal candidate (理想的候选人)", x: "14%", y: "10%" },
-                { t: "interview", uk: "[ˈɪntəvjuː]", us: "[ˈɪntərvjuː]", m: "n. 面试", ex: "The interview lasted for half an hour. (面试持续了半小时。)", note: "inter(间)+view(看)。搭配：face-to-face interview (面对面面试)", x: "86%", y: "10%" },
-                { t: "potential", uk: "[pəˈtenʃl]", us: "[pəˈtenʃl]", m: "n. 潜力", ex: "He has the potential to be a great artist. (他有成为伟大艺术家的潜力。)", note: "poten(力量)。搭配：potential customer (潜在客户)", x: "11%", y: "78%" },
-                { t: "confidence", uk: "[ˈkɒnfɪdəns]", us: "[ˈɑːnfɪdəns]", m: "n. 自信", ex: "He speaks with great confidence. (他说话充满自信。)", note: "con+fid(信)。搭配：self-confidence (自信心)", x: "62%", y: "12%" },
-                { t: "qualify", uk: "[ˈkwɒlɪfaɪ]", us: "[ˈkwɑːlɪfaɪ]", m: "v. 胜任/有资格", ex: "He is newly qualified as a doctor. (他刚取得医生资格。)", note: "qual(质)+ify。搭配：qualify for (取得...的资格)", x: "48%", y: "91%" }
+                { t: "candidate", uk: "[ˈkændɪdət]", us: "[ˈkændɪdeɪt]", m: "n. 候选人", ex: "She is the best candidate for the job. (她是这个职位的最佳人选。)", note: "cand(白) -> 纯洁。搭配：ideal candidate (理想的候选人)", x: "17%", y: "10.5%" },
+                { t: "interview", uk: "[ˈɪntəvjuː]", us: "[ˈɪntərvjuː]", m: "n. 面试", ex: "The interview lasted for half an hour. (面试持续了半小时。)", note: "inter(间)+view(看)。搭配：face-to-face interview (面对面面试)", x: "87%", y: "12%" },
+                { t: "potential", uk: "[pəˈtenʃl]", us: "[pəˈtenʃl]", m: "n. 潜力", ex: "He has the potential to be a great artist. (他有成为伟大艺术家的潜力。)", note: "poten(力量)。搭配：potential customer (潜在客户)", x: "12%", y: "78%" },
+                { t: "confidence", uk: "[ˈkɒnfɪdəns]", us: "[ˈɑːnfɪdəns]", m: "n. 自信", ex: "He speaks with great confidence. (他说话充满自信。)", note: "con+fid(信)。搭配：self-confidence (自信心)", x: "64%", y: "13%" },
+                { t: "qualify", uk: "[ˈkwɒlɪfaɪ]", us: "[ˈkwɑːlɪfaɪ]", m: "v. 胜任/有资格", ex: "He is newly qualified as a doctor. (他刚取得医生资格。)", note: "qual(质)+ify。搭配：qualify for (取得...的资格)", x: "46%", y: "92%" }
             ]
         }
     ];
