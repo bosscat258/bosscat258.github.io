@@ -15,7 +15,7 @@
         .res-item { padding: 12px; border-bottom: 1px solid #f9f9f9; font-size: 0.9em; }
         #scrollable-body { flex: 1; overflow-y: auto; padding-bottom: 80px; }
         #image-area { width: 100%; aspect-ratio: 4/3; background-size: cover; background-position: center; position: relative; background-color: #e0e0e0; }
-        .tag { position: absolute; background: rgba(74, 144, 226, 0.9); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .tag { position: absolute; background: rgba(74, 144, 226, 0.0); color: black; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: bold;  cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.0); }
         #s-title { background: #eef5ff; display: block; padding: 4px 15px; border-radius: 20px; margin: 15px auto 10px; width: fit-content; font-weight: bold; color: var(--primary); font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #main-content { padding: 0 20px 20px; }
         .audio-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 6px; cursor: pointer; flex-shrink: 0; }
@@ -140,7 +140,6 @@ const dataset = [
             ]
         }
     ];
-
     let current = 0;
     let currentWord = "";
     let currentExAudio = "";
