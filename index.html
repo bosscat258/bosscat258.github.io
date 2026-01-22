@@ -9,13 +9,66 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); font-family: sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         #app-wrapper { width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; background: white; position: relative; }
-        #search-container { padding: 10px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; flex-shrink: 0; }
-        #search-input { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        #search-results { position: absolute; top: 55px; left: 10px; right: 10px; background: white; border: 1px solid #eee; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; display: none; z-index: 101; }
+        /* 重构搜索栏布局：包含返回按钮+搜索框 */
+        #search-container { 
+            padding: 10px; 
+            background: #fff; 
+            border-bottom: 1px solid #eee; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            flex-shrink: 0;
+            display: flex; /* 改为弹性布局 */
+            align-items: center; /* 垂直居中 */
+            gap: 8px; /* 按钮和搜索框间距 */
+        }
+        /* 优化返回按钮样式 */
+        #backBtn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            background: #f5f8fc; /* 浅蓝背景更柔和 */
+            color: var(--primary);
+            border: 1px solid #e8f0fe; /* 细边框提升质感 */
+            box-shadow: none; /* 去掉厚重阴影 */
+            flex-shrink: 0; /* 防止按钮被压缩 */
+        }
+        #search-input { 
+            flex: 1; /* 搜索框占满剩余空间 */
+            padding: 10px 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 20px; 
+            outline: none; 
+            font-size: 0.9em;
+        }
+        #search-results { 
+            position: absolute; 
+            top: 55px; 
+            left: 10px; 
+            right: 10px; 
+            background: white; 
+            border: 1px solid #eee; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            max-height: 300px; 
+            overflow-y: auto; 
+            display: none; 
+            z-index: 101; 
+        }
         .res-item { padding: 12px; border-bottom: 1px solid #f9f9f9; font-size: 0.9em; }
         #scrollable-body { flex: 1; overflow-y: auto; padding-bottom: 80px; }
         #image-area { width: 100%; aspect-ratio: 4/3; background-size: cover; background-position: center; position: relative; background-color: #e0e0e0; }
         .tag { position: absolute; background: rgba(74, 144, 226, 0.0); color: black; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: bold;  cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,0.0); transition: color 0.2s; }
+        
+        /* 音频播放器样式 */
+        #audio-player-container { padding: 10px 20px 0; }
+        audio { width: 100%; height: 35px; }
+
         #s-title { background: #eef5ff; display: block; padding: 4px 15px; border-radius: 20px; margin: 15px auto 10px; width: fit-content; font-weight: bold; color: var(--primary); font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         #main-content { padding: 0 20px 20px; }
         .audio-icon { width: 16px; height: 16px; vertical-align: middle; margin-right: 6px; cursor: pointer; flex-shrink: 0; }
@@ -29,20 +82,30 @@
         #d-m { font-size: 0.85em; font-weight: bold; margin-bottom: 8px; color: #444; }
         #d-note { color: #777; font-size: 0.75em; line-height: 1.6; margin-bottom: 12px; }
         #d-ex { color: #555; font-size: 0.8em; background: #fff; padding: 8px; border-radius: 6px; border-left: 3px solid #adcff7; line-height: 1.4; display: flex; align-items: flex-start; cursor: pointer; }
+        /* 底部导航栏样式 */
         #nav-bar { position: absolute; bottom: 0; width: 100%; height: 60px; display: flex; background: white; border-top: 1px solid #eee; align-items: center; justify-content: space-around; padding: 0 20px; }
-        button { padding: 8px 20px; border: none; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 0.9em; }
+        button { padding: 8px 15px; border: none; background: var(--primary); color: white; border-radius: 20px; cursor: pointer; font-size: 0.85em; white-space: nowrap; }
         button:disabled { background: #ccc; }
+        /* 收藏按钮样式 */
+        #favorite-btn { font-size: 1.4em; cursor: pointer; line-height: 1; transition: transform 0.1s; }
+        #favorite-btn:active { transform: scale(1.2); }
     </style>
 </head>
 <body>
 
 <div id="app-wrapper">
     <div id="search-container">
+        <button id="backBtn" onclick="goBack()">←</button>
         <input type="text" id="search-input" placeholder="🔍 搜索单词、含义或笔记..." oninput="handleSearch()">
         <div id="search-results"></div>
     </div>
     <div id="scrollable-body">
         <div id="image-area"></div>
+        
+        <div id="audio-player-container">
+            <audio id="main-audio" controls></audio>
+        </div>
+
         <div id="main-content">
             <div id="s-title"></div> 
             <div id="s-en">
@@ -52,7 +115,10 @@
             <div id="s-zh"></div>
             <div id="d-init" style="color:#999; text-align:center; font-size:0.9em; border-top:1px dashed #ddd; padding-top:15px;">点击画面标签查看详情</div>
             <div id="d-box" style="display:none">
-                <div id="d-t" style="text-transform: lowercase;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div id="d-t" style="text-transform: lowercase; margin-bottom: 0;"></div>
+                    <div id="favorite-btn" onclick="toggleFavorite()">☆</div>
+                </div>
                 <div class="phonetic-wrap">
                     <div class="phonetic-btn" onclick="speakWord(1)">
                         <span id="p-uk">英 [ ]</span><img src="https://img.icons8.com/material-rounded/24/4a90e2/speaker.png" class="phonetic-icon">
@@ -80,7 +146,8 @@
 <script>
 const dataset = [
         {
-            title: "学霸的“超能力”",img: "demo_pic/demo1.jpg",
+            title: "学霸的“超能力”",img: "https://s41.ax1x.com/2026/01/21/pZc8zLT.jpg",
+            audio: "audio/group1.mp3",
             en: "To reach a high level of achievement, he tried to concentrate on his books with high efficiency, but a flying mosquito distracted him until he felt exhausted.",
             zh: "为了获得极高的成就，他试图以极高的效率专注于书本，但一只飞蚊不停地让他分心，直到他感到精疲力竭。",
             words: [
@@ -92,7 +159,8 @@ const dataset = [
             ]
         },
         {
-            title: "绝望的“深夜突击”", img: "demo_pic/demo2.jpg",
+            title: "绝望的“深夜突击”", img: "https://s41.ax1x.com/2026/01/21/pZc1bnS.jpg",
+            audio: "audio/group2.mp3",
             en: "It is inevitable that you must overcome your sleepiness to finish this urgent assignment, because you chose to postpone it until the last minute.",
             zh: "你必须克服困意来完成这项紧急的任务，这是不可避免的，因为你选择把事推迟到了最后一分钟。",
             words: [
@@ -104,7 +172,8 @@ const dataset = [
             ]
         },
         {
-            title: "食堂的“暗黑料理”", img: "demo_pic/demo3.jpg",
+            title: "食堂的“暗黑料理”", img: "https://s41.ax1x.com/2026/01/21/pZcEo4S.jpg",
+            audio: "audio/group3.mp3",
             en: "Although the chef claimed this 'mystery soup' met the safety standard and was nutritious, the student filed a complaint and used bread as a substitute rather than starve.",
             zh: "尽管厨师声声称这碗“神秘汤”符合安全标准且有营养，但学生宁愿投诉并用面包作为替代品，也不愿挨饿。",
             words: [
@@ -116,7 +185,8 @@ const dataset = [
             ]
         },
         {
-            title: "月光族的“消费黑洞”", img: "demo_pic/demo4.jpg",
+            title: "月光族的“消费黑洞”", img: "https://s41.ax1x.com/2026/01/21/pZcE79g.jpg",
+            audio: "audio/group4.mp3",
             en: "After her budget was consumed by the irresistible attraction of luxury goods, she felt deep regret because she couldn't even afford a piece of bread.",
             zh: "在预算被奢侈品不可抗拒的诱惑消耗殆尽后，她感到深深的后悔，因为她现在连一片面包都负担不起了。",
             words: [
@@ -128,7 +198,8 @@ const dataset = [
             ]
         },
         {
-            title: "职场新人的“光芒”", img: "demo_pic/demo5.jpg",
+            title: "职场新人的“光芒”", img: "https://s41.ax1x.com/2026/01/21/pZcEIN8.jpg",
+            audio: "audio/group5.mp3",
             en: "As a young candidate, he showed great potential and confidence during the interview, proving that he was fully qualified for the job.",
             zh: "作为一名年轻的候选人，他在面试中展现了巨大的潜力和自信，证明了他完全有资格胜任这份工作。",
             words: [
@@ -149,6 +220,10 @@ const dataset = [
         const area = document.getElementById('image-area');
         area.innerHTML = '';
         area.style.backgroundImage = `url('${data.img}')`;
+        
+        // 更新音频源
+        document.getElementById('main-audio').src = data.audio;
+
         document.getElementById('s-title').innerText = data.title;
         document.getElementById('s-en-text').innerText = data.en;
         document.getElementById('s-zh').innerText = data.zh;
@@ -167,6 +242,38 @@ const dataset = [
         document.getElementById('nBtn').disabled = current === dataset.length - 1;
         document.getElementById('d-init').style.display = 'block';
         document.getElementById('d-box').style.display = 'none';
+    }
+
+    // 获取收藏列表 
+    function getFavorites() {
+        const favs = localStorage.getItem('my_favorites');
+        return favs ? JSON.parse(favs) : [];
+    }
+
+    // 切换收藏状态 
+    function toggleFavorite() {
+        let favs = getFavorites();
+        const idx = favs.indexOf(currentWord);
+        if (idx > -1) {
+            favs.splice(idx, 1);
+        } else {
+            favs.push(currentWord);
+        }
+        localStorage.setItem('my_favorites', JSON.stringify(favs));
+        updateFavoriteIcon();
+    }
+
+    // 更新星星图标 
+    function updateFavoriteIcon() {
+        const favs = getFavorites();
+        const btn = document.getElementById('favorite-btn');
+        if (favs.includes(currentWord)) {
+            btn.innerText = "★";
+            btn.style.color = "#f5a623";
+        } else {
+            btn.innerText = "☆";
+            btn.style.color = "#ccc";
+        }
     }
 
     function showDetail(w) {
@@ -203,6 +310,8 @@ const dataset = [
         } else {
             document.getElementById('d-note').innerText = "";
         }
+        
+        updateFavoriteIcon(); // 显示详情时同步刷新星星状态 
         speak(w.t, 2);
     }
 
@@ -216,6 +325,11 @@ const dataset = [
     }
     
     function move(n) { current += n; render(); document.getElementById('scrollable-body').scrollTo(0,0); }
+
+    // 返回主页函数
+    function goBack() {
+        window.location.href = 'index.html';
+    }
     
     function handleSearch() {
         const q = document.getElementById('search-input').value.toLowerCase().trim();
